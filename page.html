@@ -1,0 +1,11 @@
+<html>
+    <head>
+        <title>Audition Form</title>
+        <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    </head>
+    <body>
+        <p>Props: <?= JSON.stringify(PropertiesService.getDocumentProperties().getProperties()) ?></p>
+        <h1>Fields</h1>
+        <input type="button" value="Add Name Question" onclick="google.script.run.addNameQuestion()" />
+    </body>
+</html>

@@ -14,3 +14,15 @@ function getAllUserForms(){
    return formList;
 }
 
+/**
+ * Add a question asking for the respondent's name
+ * @param {FormApp.Form} form
+ */
+function addNameQuestion(form = FormApp.getActiveForm()) {
+  var item = form.addTextItem()
+    .setRequired(true)
+    .setTitle("Your name")
+    .setDescription("Please enter your name")
+  
+  form.moveItem(item.getIndex(), 0)
+}
