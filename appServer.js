@@ -16,12 +16,9 @@
 
 
 class AuditionForm {
-    // private instance fields
-    #propstore;
-    #form;
 
     constructor() {
-        this.#propstore = PropertiesService.getDocumentProperties()
-        this.#form = FormApp.getActiveForm()
+        this.propstore = PropertiesService.getDocumentProperties()
+        this.form = FormApp.getActiveForm()
     }
 }

@@ -1,12 +1,41 @@
 <script>
     function populateForm(result) {
         $("#scriptStatus").text(result.text)
+
+        const replaceOptions = (id, optionMap, selectedValue) => {
+            let $el = $("#" + id)
+            $el.empty().append($("<option>---</option>"))
+
+            $.each(optionMap, (key, value) => {
+                let $opt = $("<option></option>")
+                    .attr("value", value)
+                    .text(key)
+                
+                $el.append($opt)
+
+                if( value == selectedValue ) {
+                    $opt.attr("selected","selected")
+                }
+            })
+        }
+
+        replaceOptions("nameSelect", {"a":"1","b":"2","c":"3"},"2")
+        replaceOptions("songSelect", {"a":"1","b":"2","c":"3"},"3")
+
     }
 
-    $(document).ready(() => 
+    function handleOnChange(e) {
+        console.log(e);
+    }
+
+    $(document).ready(() => {
+        ["#nameSelect","#songSelect"].forEach(el => $(el).change((event) => {
+            console.log(event.currentTarget.id + " was set to " + event.currentTarget.value)
+        }))
+
         google.script.run
         .withSuccessHandler(populateForm)
         .testReturnFromBackend()
-    )
+    })
 
 </script>
