@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <?!= include('addonSidebar.css') ?>
+    </head>
+        <div class="sidebar">
+            <h1>Under Construction!</h1>
+            <div class="block">
+                <p>Props: <?= JSON.stringify(PropertiesService.getDocumentProperties().getProperties()) ?></p>
+                <p>Script Running: <span id="scriptStatus">...</span></p>
+                
+            </div>
+            
+        </div>
+        <?!= include('addonSidebar.js') ?>
+        <?!= include('testpage.js') ?>
+    </body>
+</html>

@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <?!= include('addonSidebar.css') ?>
+    </head>
+    <body>
+        <div class="sidebar">
+            <script>
+            </script>
+            <div class="block form-group">
+                <label for="nameSelect"><b>Name Question</b></label>
+                <select id="nameSelect">
+                    <option>---</option>
+                </select>
+            </div>
+            <div class="block form-group">
+                <label for="songSelect"><b>Song Selection</b></label>
+                <select id="songSelect">
+                    <option>---</option>
+                </select>
+            </div>
+            <div class="block">
+                <p>Script Running: <span id="scriptStatus">...</span></p>
+            </div>
+        </div>
+        <?!= include('addonSidebar.js') ?>
+        <?!= include('addonFormSetup.js') ?>
+    </body>
+</html>
