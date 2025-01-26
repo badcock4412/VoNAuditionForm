@@ -1,8 +1,12 @@
 <script>
-    function populateForm() {
-        // do things
+    function populateForm(result) {
+        $("#scriptStatus").text(result.text)
     }
 
-    $(document).ready(() => $("#scriptStatus").text("yes I am!"))
+    $(document).ready(() => 
+        google.script.run
+        .withSuccessHandler(populateForm)
+        .testReturnFromBackend()
+    )
 
 </script>

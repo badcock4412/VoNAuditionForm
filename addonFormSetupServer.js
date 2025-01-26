@@ -22,3 +22,9 @@ function addNameQuestion(form = FormApp.getActiveForm()) {
 }
 
 
+function testReturnFromBackend() {
+  return {
+    "text": "from the backend"
+  }
+}
+

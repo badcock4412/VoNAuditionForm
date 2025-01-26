@@ -5,9 +5,13 @@
 function setupAddon() {
     let ui = FormApp.getUi()
     ui.createMenu('Audition Form Manager')
+    .addItem('Get started', 'showTestSidebar')
     .addItem('Set up form', 'showSetupSidebar')
-    .addItem('Check status', 'showTestSidebar')
-    .addItem('Fix renamed solo', 'showTestSidebar')
+    .addSeparator()
+    .addItem('Check status', 'showStatusSidebar')
+    .addItem('Rename a part', 'showTestSidebar')
+    .addSeparator()
+    .addItem('Discard Everything', 'showTestSidebar')
     .addToUi()
 }
   
