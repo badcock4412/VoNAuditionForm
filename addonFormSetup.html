@@ -4,8 +4,6 @@
     </head>
     <body>
         <div class="sidebar">
-            <script>
-            </script>
             <div class="block form-group">
                 <label for="nameSelect"><b>Name Question</b></label>
                 <select id="nameSelect">
@@ -13,14 +11,27 @@
                 </select>
             </div>
             <div class="block form-group">
-                <label for="songSelect"><b>Song Selection</b></label>
+                <label for="songSelect"><b>Part Selection</b></label>
                 <select id="songSelect">
+                    <option>---</option>
+                </select>
+            </div>
+            <div class="block form-group">
+                <label for="uploadSelect"><b>File Upload</b></label>
+                <select id="uploadSelect">
+                    <option>---</option>
+                </select>
+            </div>
+            <div class="block form-group">
+                <label for="commentSelect"><b>Comment</b></label>
+                <select id="commentSelect">
                     <option>---</option>
                 </select>
             </div>
             <div class="block">
                 <p>Script Running: <span id="scriptStatus">...</span></p>
             </div>
+            <button onclick="google.script.run.showSetupSidebar()">Re-show</button>
         </div>
         <?!= include('addonSidebar.js') ?>
         <?!= include('addonFormSetup.js') ?>

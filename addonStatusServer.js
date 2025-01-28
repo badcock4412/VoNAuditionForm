@@ -10,3 +10,4 @@ function showStatusSidebar() {
 // Display if the form has a valid configuration
 // Display how many submissions there have been
 // Display how many people have filed submissions
+// Display space available / space used from DriveApp

@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <?!= include('addonSidebar.css') ?>
+    </head>
+    <body>
+        <div class="sidebar">
+            <div class="block">
+                <h1>Action Required</h1>
+                <p>You must manually add a file upload question to the form.</p>
+                <ol>
+                    <li>Click the plus (+) button on the right to add a question.</li>
+                    <li>Choose "File upload" as the question type.</li>
+                    <li>Click "Continue" to acknowledge that form respondents will need to log in.</li>
+                    <li>Click the switch besides "Required" to make this question mandatory.</li>
+                    <li>Keep the maximum number of files to 1 at one and do not restrict on file types.</li>
+                    <li>Change the maximum file size to 1 GB.</li>
+                    <li>Where it says "This form can accept up to 1 GB of files.", click "Change". This will take you to the settings screen.
+                    <li>Under file upload, change the total size limit to 10GB.</li>
+                </ol>
+            </div>
+            <button class="blue" onclick="google.script.run.showSetupSidebar()">Continue</button>
+        </div>
+        <?!= include('addonSidebar.js') ?>
+    </body>
+</html>

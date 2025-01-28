@@ -5,14 +5,19 @@
 function setupAddon() {
     let ui = FormApp.getUi()
     ui.createMenu('Audition Form Manager')
-    .addItem('Get started', 'showTestSidebar')
+    .addItem('Getting started', 'showTestSidebar')
     .addItem('Set up form', 'showSetupSidebar')
     .addSeparator()
     .addItem('Check status', 'showStatusSidebar')
-    .addItem('Rename a part', 'showTestSidebar')
+    .addItem('Manage part/folder mapping', 'showTestSidebar')
     .addSeparator()
-    .addItem('Discard Everything', 'showTestSidebar')
+    .addItem('Discard everything', 'showTestSidebar')
+    .addItem('About', 'showAbout')
     .addToUi()
+}
+
+function showAbout() {
+    FormApp.getUi().alert("Audition Form Manager - v1.0.0.  Contact Ben Adcock benadcock@gmail.com for assistance.")
 }
   
 /**

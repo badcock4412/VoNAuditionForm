@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <?!= include('addonSidebar.css') ?> 
+    </head>
+    <body>
+        <p>Please wait, setting things up...</p>
+        <script>
+            function goToSetup() {
+                google.script.host.close()
+                google.script.run.showSetupSidebar()
+            }
+
+            function handleError() {
+                google.script.host.close()
+            }
+
+            google.script.run
+                .withSuccessHandler(goToSetup)
+                .withFailureHandler(handleError)
+                .setUpForm()
+
+        </script>
+    </body>
+</html>

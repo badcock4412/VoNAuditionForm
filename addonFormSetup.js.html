@@ -1,10 +1,15 @@
 <script>
     function populateForm(result) {
-        $("#scriptStatus").text(result.text)
+        console.log("result",result)
+        $("#scriptStatus").text(result.nameId)
 
         const replaceOptions = (id, optionMap, selectedValue) => {
             let $el = $("#" + id)
-            $el.empty().append($("<option>---</option>"))
+            let $opt = $el.empty().append($("<option>---</option>"))
+
+            if ( selectedValue === null ) {
+                $opt.attr("selected","selected")
+            }
 
             $.each(optionMap, (key, value) => {
                 let $opt = $("<option></option>")
@@ -15,27 +20,37 @@
 
                 if( value == selectedValue ) {
                     $opt.attr("selected","selected")
-                }
+                } 
             })
+
+            $el.prop("disabled",false)
         }
 
-        replaceOptions("nameSelect", {"a":"1","b":"2","c":"3"},"2")
+        replaceOptions("nameSelect", result.nameOptions, result.nameId)
         replaceOptions("songSelect", {"a":"1","b":"2","c":"3"},"3")
 
     }
 
-    function handleOnChange(e) {
-        console.log(e);
+    function disableForm() {
+        ["#nameSelect","#songSelect","#uploadSelect","#commentSelect"].forEach(el => $(el).prop("disabled",true))
     }
 
     $(document).ready(() => {
-        ["#nameSelect","#songSelect"].forEach(el => $(el).change((event) => {
+        ["#nameSelect","#songSelect","#uploadSelect","#commentSelect"].forEach(el => $(el).change((event) => {
             console.log(event.currentTarget.id + " was set to " + event.currentTarget.value)
+            
+            disableForm();
+
+            runner
+            .withSuccessHandler(populateForm)
+            .getSetupStatus()
         }))
 
-        google.script.run
+        disableForm();
+
+        runner
         .withSuccessHandler(populateForm)
-        .testReturnFromBackend()
+        .getSetupStatus()
     })
 
 </script>
