@@ -17,6 +17,7 @@ function showSetupSidebar() {
   if ( auditionForm.isSetupNeeded() ) {
     let html = HtmlService.createTemplateFromFile("addonFormSetupModal");
     ui.showModalDialog(html.evaluate().setHeight(150).setWidth(300), "Getting things ready")
+    return
   }
 
   let html = HtmlService.createTemplateFromFile('addonFormSetup');
@@ -95,7 +96,7 @@ function setUpForm(form = FormApp.getActiveForm()) {
     (item) => item.getType() == FormApp.ItemType.PARAGRAPH_TEXT
       && item.getTitle().toLowerCase().includes("comment"),
     (form) => form.addParagraphTextItem()
-        .setRequired(true)
+        .setRequired(false)
         .setTitle("Add a comment")
         .setHelpText("Optional. This space is provided to add any necessary context to your submission, if needed. Otherwise, it can be left blank.")
   )
@@ -127,22 +128,18 @@ function setUpForm(form = FormApp.getActiveForm()) {
     DriveApp.getFileById(destinationId).moveTo(formFolder)
   }
 
-
-
+  // Part 4 - Install the trigger
+  if(
+    !auditionForm.hasSubmitInstalled()
+  ) {
+    ScriptApp
+      .newTrigger('sendSoloToFolder')
+      .forForm(form)
+      .onFormSubmit()
+      .create()
+  }
 }
 
-/**
- * Add a question asking for the respondent's name
- * @param {FormApp.Form} form
- */
-function addNameQuestion(form = FormApp.getActiveForm()) {
-  var item = form.addTextItem()
-    .setRequired(true)
-    .setTitle("Your name")
-    .setHelpText("Please enter your name")
-  
-  form.moveItem(item.getIndex(), 0)
-}
 
 function getSetupStatus() {
   let form = new AuditionForm();

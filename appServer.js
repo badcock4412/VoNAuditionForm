@@ -20,6 +20,15 @@ const PROP_UPLOAD_ID = "afUploadId"
 const PROP_COMMENT_ID = "afCommentId"
 const PROP_SUBMISSION_FOLDER_ID = "afSubFolderId"
 
+function throwsException(fn) {
+    try {
+        fn()
+        return false
+    } catch {
+        return true
+    }
+}
+
 class AuditionForm {
 
     get nameId() {
@@ -115,41 +124,35 @@ class AuditionForm {
      * @param {GoogleAppsScript.Forms.FormResponse} response 
      */
     withResponse(response) {
-        return new AuditionFormResponse(this.form, response)
+        return new AuditionFormResponse(this, response)
     }
 
     isSetupNeeded() {
-        let throwsException = (fn) => {
-            try {
-                fn()
-                return false
-            } catch {
-                return true
-            }
-        }
-
-        return this.nameId === undefined
-          || this.form.getItemById(this.nameId) == null
-          || this.partId === undefined
-          || this.form.getItemById(this.partId) == null
-          || this.commentId === undefined
-          || this.form.getItemById(this.commentId) == null
-          || this.uploadId === undefined
-          || this.form.getItemById(this.uploadId) == null
-          || this.submissionFolderId === undefined
-          || throwsException( () => DriveApp.getFolderById(this.submissionFolderId) )
-          || throwsException( () => this.form.getDestinationId() )
+        return !this.isValid()
+          || throwsException( () => this.source.getDestinationId() )
+          || !this.hasSubmitInstalled()
     }
 
-    validate() {
-        return {
-            "isValid": true
-        }
+    hasSubmitInstalled() {
+        return ScriptApp.getUserTriggers(this.source).map(x => x.getHandlerFunction()).includes('sendSoloToFolder')
     }
 
-    constructor(form = FormApp.getActiveForm()) {
+    isValid() {
+        return ! ( this.nameId === undefined
+        || this.source.getItemById(this.nameId) == null
+        || this.partId === undefined
+        || this.source.getItemById(this.partId) == null
+        || this.commentId === undefined
+        || this.source.getItemById(this.commentId) == null
+        || this.uploadId === undefined
+        || this.source.getItemById(this.uploadId) == null
+        || this.submissionFolderId === undefined
+        || throwsException( () => DriveApp.getFolderById(this.submissionFolderId) ) )
+    }
+
+    constructor(source = FormApp.getActiveForm()) {
         this.propstore = PropertiesService.getDocumentProperties()
-        this.form = form
+        this.source = source
         this.data = this.propstore.getProperties()
     }
 
@@ -161,28 +164,28 @@ class AuditionFormResponse {
     getName() {
         return this.response
             .getItemResponses()
-            .find((x) => x.getItem().getId() === this.form.nameId)
+            .find((x) => x.getItem().getId() === this.auditionForm.nameId)
             .getResponse()
     }
 
     getPart() {
         return this.response
             .getItemResponses()
-            .find((x) => x.getItem().getId() === this.form.partId)
+            .find((x) => x.getItem().getId() === this.auditionForm.partId)
             .getResponse()
     }
 
     getUploadId() {
         return this.response
             .getItemResponses()
-            .find((x) => x.getItem().getId() === this.form.uploadId)
+            .find((x) => x.getItem().getId() === this.auditionForm.uploadId)
             .getResponse()
     }
 
     getComment() {
         let comment = this.response
             .getItemResponses()
-            find((x) => x.getItem().getId() === this.form.commentId)
+            .find((x) => x.getItem().getId() === this.auditionForm.commentId)
 
         if ( comment === undefined ) {
             return null
@@ -194,11 +197,11 @@ class AuditionFormResponse {
     }
 
     getUploadFile() {
-        return DriveApp.getFileById(getUploadId())
+        return DriveApp.getFileById(this.getUploadId())
     }
 
     getPartFolder() {
-        return getPartFolder(this.getPart())
+        return this.auditionForm.getPartFolder(this.getPart())
     }
 
     get timestamp() {
@@ -211,10 +214,10 @@ class AuditionFormResponse {
 
     getTimesUploaded() {
         if ( this.timesUploaded === undefined ) {
-            this.timesUploaded = this.form.form
+            this.timesUploaded = this.auditionForm.source
                 .getResponses()
                 .filter( oldResponse => {
-                    let fold = this.form.withResponse(oldResponse)
+                    let fold = this.auditionForm.withResponse(oldResponse)
                     return this.id != fold.id
                     && this.getName() == fold.getName()
                     && this.getPart() == fold.getPart()
@@ -225,11 +228,11 @@ class AuditionFormResponse {
     }
 
     /**
-     * @param {AuditionForm} form - the source form
+     * @param {AuditionForm} auditionForm - the source form
      * @param {GoogleAppsScript.Forms.FormResponse} response - the user response
      */
-    constuctor(form, response) {
-        this.form = form
+    constructor(auditionForm, response) {
+        this.auditionForm = auditionForm
         this.response = response
     }
 }
