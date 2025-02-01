@@ -5,7 +5,6 @@
 function setupAddon() {
     let ui = FormApp.getUi()
     ui.createMenu('Audition Form Manager')
-    .addItem('Reprocess','reprocess')
     .addItem('Getting started', 'showTestSidebar')
     .addItem('Set up form', 'showSetupSidebar')
     .addSeparator()
@@ -18,14 +17,10 @@ function setupAddon() {
 }
 
 function showAbout() {
-    FormApp.getUi().alert("Audition Form Manager - v1.0.0.  Contact Ben Adcock benadcock@gmail.com for assistance.")
-}
-
-function reprocess() {
-    let form = FormApp.getActiveForm()
-    let response = form.getResponses()[0]
-
-    sendSoloToFolder({response:response, source:form})
+    let { author, authorContact, version } = PropertiesService.getScriptProperties().getProperties()
+    let message = `<p>Audition Form Manager - ${version}.</p><p>Contact ${author} at ${authorContact} for assistance.</p>`
+    
+    showModalMessage("About",message, 300, 150)
 }
   
 /**

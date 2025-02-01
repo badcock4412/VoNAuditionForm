@@ -236,3 +236,13 @@ class AuditionFormResponse {
         this.response = response
     }
 }
+
+function showModalMessage(title, message, width, height) {
+    let template = HtmlService.createTemplateFromFile('addonModal')
+    template.message = message
+    
+    FormApp.getUi().showModalDialog(
+        template.evaluate().setWidth(width).setHeight(height),
+        title
+    )
+}
