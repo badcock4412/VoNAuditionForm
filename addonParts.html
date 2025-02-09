@@ -1,0 +1,10 @@
+<html>
+    <head>
+        <?!= include('addonSidebar.css') ?> 
+    </head>
+    <body>
+        <? new AuditionForm(FormApp.getActiveForm()).getPartManager().getPartFolderInfo().forEach( part => { ?>
+            <p><?= part.name ?></p>    
+        <? }) ?> 
+    </body>
+</html>

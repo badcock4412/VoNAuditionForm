@@ -15,9 +15,6 @@ function sendSoloToFolder({ response, source }) {
     }
 
     var auditionSubmission = auditionForm.withResponse(response)
-  
-    // determine the submitted song
-    var song = auditionSubmission.getPart()
 
     auditionSubmission.getUploadFile()
         .moveTo(auditionSubmission.getPartFolder())

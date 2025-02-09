@@ -19,6 +19,7 @@ const PROP_PART_ID = "afPartId"
 const PROP_UPLOAD_ID = "afUploadId"
 const PROP_COMMENT_ID = "afCommentId"
 const PROP_SUBMISSION_FOLDER_ID = "afSubFolderId"
+const PROP_PART_MAP = "afPartMap"
 
 function throwsException(fn) {
     try {
@@ -26,6 +27,129 @@ function throwsException(fn) {
         return false
     } catch {
         return true
+    }
+}
+
+class PartManager {
+
+    /**
+    * @param {AuditionForm} auditionForm The Google Drive Folder containing all submissions.
+    */
+    constructor(auditionForm) {
+        this.auditionForm = auditionForm
+    }
+
+    /**
+     * Takes a part mapping and finds or makes a folder for it.
+     * 
+     * @param {Object} partMap The part name, or id
+     * @param {string} partMap.name The name of the new or existing folder
+     * @param {string} partMap.id The id of the existing folder
+     * 
+     * @returns {{name: string, id: string}} The reconciled part mapping
+     */
+    reconcilePartMap(partMap) {
+
+        // Case: id is given
+        if ( partMap.id !== undefined ) {
+            let folder;
+            try {
+                folder = DriveApp.getFolderById(partMap.id)
+            } catch {
+                if ( partMap.name !== undefined && partMap.name != "") {
+                    folder = this.auditionForm.getSubmissionFolder().createFolder(partMap.name)
+                } else {
+                    folder = this.auditionForm.getSubmissionFolder().createFolder("Recovered part")
+                }
+            }
+
+            return {
+                "name": folder.getName(),
+                "id": folder.getId()
+            }
+        }
+
+        // Case: id is not given, name is
+        if ( partMap.name !== undefined && partMap.name != "") {
+            let folder;
+            let parentFolder = this.auditionForm.getSubmissionFolder();
+            let folderSearch = parentFolder.getFoldersByName(partMap.name)
+            if ( folderSearch.hasNext() ) {
+                folder = folderSearch.next()
+            } else {
+                folder = this.auditionForm.getSubmissionFolder().createFolder(partMap.name)
+            }
+
+            return {
+                "name": folder.getName(),
+                "id": folder.getId()
+            }
+        }
+
+        throw("reconcilePartMap has neither folder id, nor name.")
+    }
+
+    /**
+     * @returns {[{
+     *  name: string
+     *  parts: string[]
+     *  fileCount: number
+     *  isExtra: boolean
+     *  isEmpty: boolean
+     * }]} 
+     */
+    getPartFolderInfo() {
+       
+        // Get folders in submission folder
+        let folders = []
+        let folderIt = this.auditionForm.getSubmissionFolder().getFolders()
+
+        while( folderIt.hasNext() ) {
+            // except for the one with (File responses)
+            let folder = folderIt.next();
+            if ( folder.getName().includes("(File responses)") ) { continue; }
+
+            folders.push(folder)
+        }
+
+        // find folders associated with parts that might have meandered somewhere else
+        let folderIds = folders.map(folder => folder.getId())
+        let allParts = this.auditionForm.getFlatPartMap()
+
+        let unique = [...new Set(
+            allParts.map(x => x.id)
+            .filter(x => x !== undefined && x != "")
+            .filter(x => !folderIds.includes(x.id)))
+        ]
+        
+        unique.forEach(id => {
+            try {
+                let folder = DriveApp.getFolderById(id);
+                folders.push(folder)
+            } catch {}
+        })
+            
+        const countFiles = (folder) => {
+            let i = 0;
+            let files = folder.getFiles()
+            while( files.hasNext() ) {
+                i++;
+                files.next()
+            }
+            return i
+        }
+
+        return folders.map( folder => {
+            let parts = allParts.filter(x => x.id == folder.getId())
+            let itemCount = countFiles(folder)
+            return {
+                name: folder.getName(),
+                parts: parts,
+                fileCount: itemCount,
+                isEmpty: itemCount == 0,
+                isExtra: parts.length == 0
+            }
+        })
     }
 }
 
@@ -95,6 +219,63 @@ class AuditionForm {
         this.submissionFolderId = folder.getId()
     }
 
+    get partMap() {
+        let map = this.data[PROP_PART_MAP];
+        if ( map === undefined ) return {};
+        return JSON.parse(map);
+    }
+
+    /**
+     * 
+     * @returns {[{ part: string, name: string, id: string }]}
+     */
+    getFlatPartMap() {
+        let x = this.partMap
+        return Object.keys(x).map(key => {
+            return {
+                part: key,
+                name: x[key].name,
+                id: x[key].id
+            }
+        })
+    }
+
+    set partMap(map) {
+        this.data[PROP_PART_MAP] = JSON.stringify(map);
+    }
+
+    /**
+     * 
+     * @param {string} part
+     * @returns {Object<string, {name: string, id: string}>}
+     */
+    getPartMapping(part) {
+        let map = this.partMap
+        if ( map[part] === undefined ) {
+            map[part] = {
+                "name":part
+            }
+            this.partMap = map
+        }
+        return map[part]
+    }
+
+    // change part map to new folder
+    // change part map to existing folder
+    setPartMapping(part,newName) {
+        let map = this.partMap
+        map[part] = {
+            "name": newName
+        }
+        this.partMap = map
+    }
+
+    removePartMapping(part) {
+        let map = this.partMap
+        delete map[part]
+        this.partMap = map
+    }
+
     getRegisteredItems() {
         return [
             this.nameId,
@@ -103,6 +284,8 @@ class AuditionForm {
             this.partId
         ].filter(x => x !== undefined)
     }
+
+
 
     /**
      * getPartFolder determines the folder to be returned for a given part name.
@@ -150,9 +333,13 @@ class AuditionForm {
         || throwsException( () => DriveApp.getFolderById(this.submissionFolderId) ) )
     }
 
+    getPartManager() {
+        return new PartManager(this)
+    }
+
     constructor(source = FormApp.getActiveForm()) {
-        this.propstore = PropertiesService.getDocumentProperties()
         this.source = source
+        this.propstore = PropertiesService.getDocumentProperties()
         this.data = this.propstore.getProperties()
     }
 
@@ -189,7 +376,7 @@ class AuditionFormResponse {
 
         if ( comment === undefined ) {
             return null
-        } else if (comment.length == 0 ) {
+        } else if ( comment.length == 0 ) {
             return null
         }
 

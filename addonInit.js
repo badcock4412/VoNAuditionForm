@@ -9,7 +9,7 @@ function setupAddon() {
     .addItem('Set up form', 'showSetupSidebar')
     .addSeparator()
     .addItem('Check status', 'showStatusSidebar')
-    .addItem('Manage part/folder mapping', 'showTestSidebar')
+    .addItem('Manage part/folder mapping', 'showPartManager')
     .addSeparator()
     .addItem('Discard everything', 'showTestSidebar')
     .addItem('About', 'showAbout')
